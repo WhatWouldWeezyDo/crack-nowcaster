@@ -1,0 +1,1 @@
+yfinance\npandas\nnumpy\nmatplotlib\nscikit-learn\njupyterlab\nipykernel
