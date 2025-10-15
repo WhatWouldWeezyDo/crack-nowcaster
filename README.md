@@ -16,9 +16,10 @@
 
 This project explores a **supervised machine learning approach** to predict the *next-day direction* of the refinery crack spread — a key profitability measure for refineries defined as:
 
-\[
-\text{CRACK}_{3:2:1} = 2 \times \text{RBOB} + 1 \times \text{ULSD} - 3 \times \text{WTI}
-\]
+<p align="center">
+  <b>CRACK<sub>3:2:1</sub> = 2 × RBOB + 1 × ULSD − 3 × WTI</b>
+</p>
+
 
 The objective is to evaluate whether short-term price momentum and relative strength features derived from energy futures contain predictive information about next-day changes in the spread.
 
