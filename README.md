@@ -1,87 +1,88 @@
-# 3-2-1 Crack Spread Nowcaster ⛽📈
+<h1 align="center">⚙️ 3-2-1 Crack Spread Nowcaster ⛽📈</h1>
 
-**Goal:** Predict the *next-day direction* of the refinery crack spread —  
-defined as:  
-> **CRACK = 2 × RBOB + 1 × ULSD − 3 × WTI**
+<p align="center">
+  <img src="notebooks/figures/equity_curve.png" width="500"/>
+</p>
 
-using simple, interpretable ML features.
-
-> **Stack:** Python · pandas · scikit-learn · yfinance · matplotlib  
-> **Data:** Yahoo Finance continuous front-month futures (`CL=F`, `RB=F`, `HO=F`)  
-> **ML Type:** Supervised binary classification (time-series → tabular engineered features)
+<p align="center">
+  <b>Machine Learning model to nowcast the daily direction of refinery margins (3-2-1 crack spread)</b>  
+  <br>
+  Built with <code>Python · scikit-learn · pandas · yfinance · matplotlib</code>
+</p>
 
 ---
 
-## 🚀 Quickstart
+## 🧩 Abstract
 
-```bash
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-# Then open and run:
-# notebooks/01_crack_spread_nowcaster.ipynb
-📊 Results (Out-of-sample test ≥ 2023-01-01)
-Metric	Value
-Accuracy	0.540
-Precision	0.541
-Recall	0.443
-AUC	0.539
+This project explores a **supervised machine learning approach** to predict the *next-day direction* of the refinery crack spread — a key profitability measure for refineries defined as:
 
-ROC (Test)
-<img src="notebooks/figures/roc_curve.png" width="520"/>
-Diagnostic Equity Curve (No Costs)
-<img src="notebooks/figures/equity_curve.png" width="520"/>
-This is a signal study for directional nowcasting.
-It does not model contract rolls, carry, or execution costs.
-Target = up/down, not P&L.
+\[
+\text{CRACK}_{3:2:1} = 2 \times \text{RBOB} + 1 \times \text{ULSD} - 3 \times \text{WTI}
+\]
 
-⚙️ Method (Short)
-Label: 1 if CRACK(t+1) > CRACK(t), else 0
+The objective is to evaluate whether short-term price momentum and relative strength features derived from energy futures contain predictive information about next-day changes in the spread.
 
-Features: 5/10/20-day returns & z-scores for CL/RB/HO and the crack; weekday & month
+---
 
-Model: StandardScaler → LogisticRegression(max_iter=1000)
+## 📘 Methodology
 
-Validation: Time-based split (train ≤ 2022-12-31, test ≥ 2023-01-01). No shuffling, no leakage.
+### Data
+- Source: **Yahoo Finance** continuous front-month futures  
+  - `CL=F` (Crude Oil - WTI)  
+  - `RB=F` (Gasoline - RBOB)  
+  - `HO=F` (Heating Oil - ULSD)
+- Period: 2013–2025  
+- Frequency: Daily close prices
 
-🧠 Why It Matters
-The crack spread ≈ refinery gross margin.
-Signals tie directly to energy market dynamics:
+### Feature Engineering
+| Category | Description |
+|-----------|-------------|
+| Momentum | 5, 10, 20-day % changes for CL, RB, HO |
+| Spread dynamics | Crack % change, z-scores |
+| Calendar | Day-of-week and month dummies |
 
-Gasoline strength (RB ↑) → crack ↑
+### Model
+- **Pipeline:** `StandardScaler` → `LogisticRegression(max_iter=1000)`  
+- **Label:** 1 if `CRACK(t+1) > CRACK(t)`, else 0  
+- **Validation:** Time-based split — Train ≤ 2022-12-31, Test ≥ 2023-01-01  
+- **No data leakage, no shuffling.**
 
-Crude strength (CL ↑) → crack ↓ (feedstock cost squeeze)
+---
 
-📁 Repo Structure
-markdown
-Copy code
-notebooks/
-  01_crack_spread_nowcaster.ipynb
-  figures/
-    roc_curve.png
-    equity_curve.png
-  reports/
-    metrics.json
-requirements.txt
-README.md
-LICENSE
-.gitignore
-🔮 Roadmap (Next Steps)
-Add baselines: majority class, 1-day crack momentum, always-long diagnostic.
+## 📊 Results (Out-of-sample Test)
 
-Threshold tuning: pick decision threshold via F1/Youden index.
+| Metric | Value |
+|:-------|:------|
+| Accuracy | 0.540 |
+| Precision | 0.541 |
+| Recall | 0.443 |
+| AUC | 0.539 |
 
-Walk-forward AUC: expanding-window backtest.
+### ROC Curve
+<p align="center">
+  <img src="notebooks/figures/roc_curve.png" width="520"/>
+</p>
 
-Interpretability: rank top coefficients with market intuition.
+### Diagnostic Equity Curve (No Costs)
+<p align="center">
+  <img src="notebooks/figures/equity_curve.png" width="520"/>
+</p>
 
-Ablation study: base vs +ratios (RB/CL, HO/CL) vs +volatility features.
+> The diagnostic equity curve serves as a signal proxy (no contract rolls or execution costs).  
+> It demonstrates weak but consistent directionality — evidence of minor predictive structure.
 
-(Optional) Add lagged EIA weekly inventory deltas.
+---
 
-⚖️ License
-This project is licensed under the MIT License (see LICENSE).
+## 🧠 Interpretation
 
-The MIT License allows anyone to use, copy, modify, and redistribute this code — including commercially —
-as long as they keep the license notice. It also disclaims all warranties and liability.
+- **Gasoline strength (RB ↑)** → Crack ↑  
+- **Crude strength (CL ↑)** → Crack ↓ (feedstock cost squeeze)  
+- Crack spread movement captures refinery margin volatility.
 
-Built by Praabveer — feedback welcome.
+Future improvements may include:
+- Baseline comparison (momentum-only, naive persistence)
+- Feature importance analysis (coefficients & shapley values)
+- Walk-forward AUC evaluation
+- Integration of **EIA inventory deltas** and volatility indicators
+
+---
